@@ -1,8 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabaseClient';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -11,25 +10,48 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  // Check if user is already logged in
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      router.push('/dashboard');
+    }
+  }, [router]);
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
       });
 
-      if (error) {
-        setError(error.message);
-      } else {
+      const data = await response.json();
+
+      if (response.ok) {
+        // Simpan token dan email ke localStorage
+        localStorage.setItem('token', data.data.access_token);
+        localStorage.setItem('userEmail', data.data.user.email);
+        localStorage.setItem('userName', data.data.user.nama_lengkap);
+        localStorage.setItem('userRole', data.data.user.role);
+        
         // Login berhasil, redirect ke dashboard
         router.push('/dashboard');
+      } else {
+        setError(data.error || 'Login gagal');
       }
     } catch (err) {
       setError('Terjadi kesalahan saat login');
+      console.error('Login error:', err);
     } finally {
       setLoading(false);
     }

@@ -25,33 +25,34 @@
                   "    pm.response.to.be.json;",
                   "});",
                   "",
-                  "// Test 3: Memeriksa body respons berisi access_token dan user",
+                  "// Test 3: Memeriksa body respons berisi data dengan access_token dan user",
                   "pm.test(\"Response contains access_token and user\", function () {",
                   "    const responseJson = pm.response.json();",
-                  "    pm.expect(responseJson).to.have.property('access_token');",
-                  "    pm.expect(responseJson).to.have.property('user');",
+                  "    pm.expect(responseJson).to.have.property('data');",
+                  "    pm.expect(responseJson.data).to.have.property('access_token');",
+                  "    pm.expect(responseJson.data).to.have.property('user');",
                   "});",
                   "",
                   "// Test 4: Memeriksa access_token adalah string valid",
                   "pm.test(\"Access token is valid string\", function () {",
                   "    const responseJson = pm.response.json();",
-                  "    pm.expect(responseJson.access_token).to.be.a('string');",
-                  "    pm.expect(responseJson.access_token.length).to.be.greaterThan(0);",
+                  "    pm.expect(responseJson.data.access_token).to.be.a('string');",
+                  "    pm.expect(responseJson.data.access_token.length).to.be.greaterThan(0);",
                   "});",
                   "",
                   "// Test 5: Memeriksa user memiliki properti email",
                   "pm.test(\"User contains email\", function () {",
                   "    const responseJson = pm.response.json();",
-                  "    pm.expect(responseJson.user).to.have.property('email');",
-                  "    pm.expect(responseJson.user.email).to.be.a('string');",
+                  "    pm.expect(responseJson.data.user).to.have.property('email');",
+                  "    pm.expect(responseJson.data.user.email).to.be.a('string');",
                   "});",
                   "",
                   "// Simpan access_token ke environment variable",
                   "pm.test(\"Save access_token to environment\", function () {",
                   "    const responseJson = pm.response.json();",
-                  "    if (responseJson.access_token) {",
-                  "        pm.environment.set('accessToken', responseJson.access_token);",
-                  "        console.log('Access token saved to environment:', responseJson.access_token.substring(0, 20) + '...');",
+                  "    if (responseJson.data && responseJson.data.access_token) {",
+                  "        pm.environment.set('accessToken', responseJson.data.access_token);",
+                  "        console.log('Access token saved to environment:', responseJson.data.access_token.substring(0, 20) + '...');",
                   "    }",
                   "});",
                   "",
@@ -59,6 +60,7 @@
                   "pm.test(\"No error in response\", function () {",
                   "    const responseJson = pm.response.json();",
                   "    pm.expect(responseJson).to.not.have.property('error');",
+                  "    pm.expect(responseJson).to.have.property('success', true);",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -71,10 +73,6 @@
               {
                 "key": "Content-Type",
                 "value": "application/json"
-              },
-              {
-                "key": "apikey",
-                "value": "{{supabaseAnonKey}}"
               }
             ],
             "body": {
@@ -82,20 +80,14 @@
               "raw": "{\n  \"email\": \"{{testEmail}}\",\n  \"password\": \"{{testPassword}}\"\n}"
             },
             "url": {
-              "raw": "{{supabaseUrl}}/auth/v1/token?grant_type=password",
+              "raw": "{{baseUrl}}/api/auth/login",
               "host": [
-                "{{supabaseUrl}}"
+                "{{baseUrl}}"
               ],
               "path": [
-                "auth",
-                "v1",
-                "token"
-              ],
-              "query": [
-                {
-                  "key": "grant_type",
-                  "value": "password"
-                }
+                "api",
+                "auth", 
+                "login"
               ]
             },
             "description": "Test login functionality menggunakan Supabase Auth API"
@@ -279,7 +271,7 @@
                   "",
                   "// Clear access token dari environment",
                   "pm.test(\"Clear access token from environment\", function () {",
-                  "    pm.environment.unset('accessToken');",
+                  "    // pm.environment.unset('accessToken'); // Disabled - keep token for Courses API",
                   "    console.log('Access token cleared from environment');",
                   "});"
                 ],
@@ -315,6 +307,346 @@
         }
       ],
       "description": "Tests untuk authentication endpoints dan database operations"
+    },
+    {
+      "name": "Courses API",
+      "item": [
+        {
+          "name": "Get All Courses",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Test: Memeriksa status respons adalah 200 OK",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Test: Memeriksa respons adalah JSON",
+                  "pm.test(\"Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "// Test: Memeriksa struktur response",
+                  "pm.test(\"Response has correct structure\", function () {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson).to.have.property('success');",
+                  "    pm.expect(responseJson).to.have.property('data');",
+                  "    pm.expect(responseJson).to.have.property('message');",
+                  "});",
+                  "",
+                  "// Test: Memeriksa data adalah array",
+                  "pm.test(\"Data is an array\", function () {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.data).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/api/courses",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "courses"
+              ]
+            },
+            "description": "Test mendapatkan semua kursus"
+          }
+        },
+        {
+          "name": "Create New Course",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Test: Memeriksa status respons adalah 201 Created",
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "// Test: Memeriksa respons adalah JSON",
+                  "pm.test(\"Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "// Test: Memeriksa struktur response",
+                  "pm.test(\"Response has correct structure\", function () {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson).to.have.property('success');",
+                  "    pm.expect(responseJson).to.have.property('data');",
+                  "    pm.expect(responseJson).to.have.property('message');",
+                  "});",
+                  "",
+                  "// Test: Memeriksa data kursus yang dibuat",
+                  "pm.test(\"Created course has required fields\", function () {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.data).to.have.property('course_id');",
+                  "    pm.expect(responseJson.data).to.have.property('nama_course');",
+                  "    pm.expect(responseJson.data).to.have.property('deskripsi');",
+                  "    pm.expect(responseJson.data).to.have.property('id_pengajar');",
+                  "});",
+                  "",
+                  "// Simpan course_id untuk test selanjutnya",
+                  "pm.test(\"Save course_id to environment\", function () {",
+                  "    const responseJson = pm.response.json();",
+                  "    if (responseJson.data && responseJson.data.course_id) {",
+                  "        pm.environment.set('testCourseId', responseJson.data.course_id);",
+                  "        console.log('Course ID saved to environment:', responseJson.data.course_id);",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nama_course\": \"Test Course API\",\n  \"deskripsi\": \"Kursus test untuk validasi API\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/courses",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "courses"
+              ]
+            },
+            "description": "Test membuat kursus baru"
+          }
+        },
+        {
+          "name": "Get Course by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Test: Memeriksa status respons adalah 200 OK",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Test: Memeriksa respons adalah JSON",
+                  "pm.test(\"Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "// Test: Memeriksa struktur response",
+                  "pm.test(\"Response has correct structure\", function () {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson).to.have.property('success');",
+                  "    pm.expect(responseJson).to.have.property('data');",
+                  "    pm.expect(responseJson).to.have.property('message');",
+                  "});",
+                  "",
+                  "// Test: Memeriksa data kursus",
+                  "pm.test(\"Course data has required fields\", function () {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.data).to.have.property('course_id');",
+                  "    pm.expect(responseJson.data).to.have.property('nama_course');",
+                  "    pm.expect(responseJson.data).to.have.property('id_pengajar');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/api/courses/{{testCourseId}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "courses",
+                "{{testCourseId}}"
+              ]
+            },
+            "description": "Test mendapatkan kursus berdasarkan ID"
+          }
+        },
+        {
+          "name": "Update Course",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Test: Memeriksa status respons adalah 200 OK",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Test: Memeriksa respons adalah JSON",
+                  "pm.test(\"Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "// Test: Memeriksa struktur response",
+                  "pm.test(\"Response has correct structure\", function () {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson).to.have.property('success');",
+                  "    pm.expect(responseJson).to.have.property('data');",
+                  "    pm.expect(responseJson).to.have.property('message');",
+                  "});",
+                  "",
+                  "// Test: Memeriksa data kursus yang diupdate",
+                  "pm.test(\"Updated course has correct name\", function () {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.data.nama_course).to.equal('Test Course API Updated');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nama_course\": \"Test Course API Updated\",\n  \"deskripsi\": \"Kursus test yang sudah diupdate untuk validasi API\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/courses/{{testCourseId}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "courses",
+                "{{testCourseId}}"
+              ]
+            },
+            "description": "Test mengupdate kursus"
+          }
+        },
+        {
+          "name": "Delete Course",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Test: Memeriksa status respons adalah 200 OK",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Test: Memeriksa respons adalah JSON",
+                  "pm.test(\"Response is JSON\", function () {",
+                  "    pm.response.to.be.json;",
+                  "});",
+                  "",
+                  "// Test: Memeriksa struktur response",
+                  "pm.test(\"Response has correct structure\", function () {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.expect(responseJson).to.have.property('success');",
+                  "    pm.expect(responseJson).to.have.property('message');",
+                  "});",
+                  "",
+                  "// Clear course ID dari environment",
+                  "pm.test(\"Clear course ID from environment\", function () {",
+                  "    pm.environment.unset('testCourseId');",
+                  "    console.log('Course ID cleared from environment');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/api/courses/{{testCourseId}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "courses",
+                "{{testCourseId}}"
+              ]
+            },
+            "description": "Test menghapus kursus"
+          }
+        }
+      ],
+      "description": "Tests untuk API pengelolaan kursus"
     }
   ]
 }
