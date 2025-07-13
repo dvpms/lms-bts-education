@@ -68,7 +68,7 @@ export async function GET(request) {
 
     return NextResponse.json({
       success: true,
-      data: courses,
+      courses: courses,
       message: 'Data kursus berhasil diambil'
     });
 
