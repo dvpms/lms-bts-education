@@ -25,33 +25,33 @@
                   "    pm.response.to.be.json;",
                   "});",
                   "",
-                  "// Test 3: Memeriksa body respons berisi objek data.session dan data.user",
-                  "pm.test(\"Response contains data.session and data.user\", function () {",
+                  "// Test 3: Memeriksa body respons berisi access_token dan user",
+                  "pm.test(\"Response contains access_token and user\", function () {",
                   "    const responseJson = pm.response.json();",
-                  "    pm.expect(responseJson).to.have.property('data');",
-                  "    pm.expect(responseJson.data).to.have.property('session');",
-                  "    pm.expect(responseJson.data).to.have.property('user');",
+                  "    pm.expect(responseJson).to.have.property('access_token');",
+                  "    pm.expect(responseJson).to.have.property('user');",
                   "});",
                   "",
-                  "// Test 4: Memeriksa session memiliki properti access_token",
-                  "pm.test(\"Session contains access_token\", function () {",
+                  "// Test 4: Memeriksa access_token adalah string valid",
+                  "pm.test(\"Access token is valid string\", function () {",
                   "    const responseJson = pm.response.json();",
-                  "    pm.expect(responseJson.data.session).to.have.property('access_token');",
-                  "    pm.expect(responseJson.data.session.access_token).to.be.a('string');",
+                  "    pm.expect(responseJson.access_token).to.be.a('string');",
+                  "    pm.expect(responseJson.access_token.length).to.be.greaterThan(0);",
                   "});",
                   "",
                   "// Test 5: Memeriksa user memiliki properti email",
                   "pm.test(\"User contains email\", function () {",
                   "    const responseJson = pm.response.json();",
-                  "    pm.expect(responseJson.data.user).to.have.property('email');",
+                  "    pm.expect(responseJson.user).to.have.property('email');",
+                  "    pm.expect(responseJson.user.email).to.be.a('string');",
                   "});",
                   "",
                   "// Simpan access_token ke environment variable",
                   "pm.test(\"Save access_token to environment\", function () {",
                   "    const responseJson = pm.response.json();",
-                  "    if (responseJson.data && responseJson.data.session && responseJson.data.session.access_token) {",
-                  "        pm.environment.set('accessToken', responseJson.data.session.access_token);",
-                  "        console.log('Access token saved to environment:', responseJson.data.session.access_token);",
+                  "    if (responseJson.access_token) {",
+                  "        pm.environment.set('accessToken', responseJson.access_token);",
+                  "        console.log('Access token saved to environment:', responseJson.access_token.substring(0, 20) + '...');",
                   "    }",
                   "});",
                   "",
@@ -157,60 +157,6 @@
             "description": "Test mendapatkan informasi user yang sedang login"
           }
         },
-        {
-          "name": "Logout User",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "// Test: Memeriksa status respons adalah 204 No Content",
-                  "pm.test(\"Status code is 204\", function () {",
-                  "    pm.response.to.have.status(204);",
-                  "});",
-                  "",
-                  "// Clear access token dari environment",
-                  "pm.test(\"Clear access token from environment\", function () {",
-                  "    pm.environment.unset('accessToken');",
-                  "    console.log('Access token cleared from environment');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}"
-              },
-              {
-                "key": "apikey",
-                "value": "{{supabaseAnonKey}}"
-              }
-            ],
-            "url": {
-              "raw": "{{supabaseUrl}}/auth/v1/logout",
-              "host": [
-                "{{supabaseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "v1",
-                "logout"
-              ]
-            },
-            "description": "Test logout functionality"
-          }
-        }
-      ],
-      "description": "Tests untuk authentication endpoints"
-    },
-    {
-      "name": "Database Operations",
-      "item": [
         {
           "name": "Get Users Table",
           "event": [
@@ -318,9 +264,57 @@
             },
             "description": "Test akses ke tabel courses"
           }
+        },
+        {
+          "name": "Logout User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Test: Memeriksa status respons adalah 204 No Content",
+                  "pm.test(\"Status code is 204\", function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});",
+                  "",
+                  "// Clear access token dari environment",
+                  "pm.test(\"Clear access token from environment\", function () {",
+                  "    pm.environment.unset('accessToken');",
+                  "    console.log('Access token cleared from environment');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "apikey",
+                "value": "{{supabaseAnonKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{supabaseUrl}}/auth/v1/logout",
+              "host": [
+                "{{supabaseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "v1",
+                "logout"
+              ]
+            },
+            "description": "Test logout functionality"
+          }
         }
       ],
-      "description": "Tests untuk database operations"
+      "description": "Tests untuk authentication endpoints dan database operations"
     }
   ]
 }
