@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 // Daftar menu untuk setiap peran
 const teacherNavLinks = [
   { name: "Dashboard", href: "/dashboard" },
-  { name: "Kelola Kursus", href: "/pengajar/courses" },
+  { name: "Kelola Kursus", href: "/dashboard/pengajar/courses" },
   // ...tambahkan menu pengajar lainnya di sini
 ];
 
