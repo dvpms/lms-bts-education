@@ -6,13 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "test:api": "newman run \"lms-api-test.postman_collection.json\" -e \"lms-api-test.postman_environment.json\"",
-    "test:api:verbose": "newman run \"lms-api-test.postman_collection.json\" -e \"lms-api-test.postman_environment.json\" --verbose"
+    "lint": "next lint"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.50.5",
-    "dotenv": "^17.2.0",
     "next": "15.3.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
@@ -22,7 +19,6 @@
     "@tailwindcss/postcss": "^4",
     "eslint": "^9",
     "eslint-config-next": "15.3.5",
-    "newman": "^6.2.1",
     "supabase": "^2.30.4",
     "tailwindcss": "^4"
   }
