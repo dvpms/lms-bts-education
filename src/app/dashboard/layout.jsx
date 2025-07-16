@@ -22,7 +22,6 @@ const Header = ({ user, onLogout }) => (
 );
 
 export default function DashboardLayout({ children }) {
-
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
