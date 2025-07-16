@@ -19,9 +19,6 @@ DROP TABLE IF EXISTS public.users CASCADE;
 DROP TYPE IF EXISTS user_role;
 
 
--- =================================================================
--- SCRIPT BARU YANG SUDAH DIPERBAIKI (Jalankan ini setelah reset)
--- =================================================================
 -- 1. Membuat kembali tipe ENUM untuk peran pengguna
 CREATE TYPE user_role AS ENUM ('pengajar', 'siswa');
 

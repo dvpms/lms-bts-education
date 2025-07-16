@@ -7,13 +7,14 @@ import { usePathname } from "next/navigation";
 const teacherNavLinks = [
   { name: "Dashboard", href: "/dashboard" },
   { name: "Kelola Kursus", href: "/dashboard/pengajar/courses" },
-  // ...tambahkan menu pengajar lainnya di sini
+  { name: "Laporan Progres", href: "/dashboard/pengajar/progress" },
+  { name: "Penilaian Tugas", href: "/dashboard/pengajar/assignments" },
 ];
 
 const studentNavLinks = [
   { name: "Dashboard", href: "/dashboard" },
-  { name: "Kursus Saya", href: "/siswa/my-courses" },
-  // ...tambahkan menu siswa lainnya di sini
+  { name: "Kursus Saya", href: "/dashboard/siswa/my-courses" },
+  { name: "Progres Saya", href: "/dashboard/siswa/progress" },
 ];
 
 export default function Sidebar({ userRole }) {

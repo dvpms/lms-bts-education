@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 // Fungsi untuk mengambil satu kursus berdasarkan ID
 export async function GET(request, { params }) {
   const supabase = await createSupabaseServerClient();
-  const { id } = params; // Mengambil ID dari URL
+  const { id } = await params; // Mengambil ID dari URL
 
   try {
     const { data: course, error } = await supabase

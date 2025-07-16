@@ -109,7 +109,7 @@ export default function ManageCoursesPage() {
   // Fungsi untuk navigasi ke detail kursus
   const handleCourseClick = (courseId) => {
     // Arahkan ke halaman detail materi dan tugas untuk kursus ini
-    router.push(`/dashboard/pengajar/courses/${courseId}/materials`);
+    router.push(`/dashboard/pengajar/courses/${courseId}`);
   };
 
   return (
