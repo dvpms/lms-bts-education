@@ -1,0 +1,246 @@
+{
+  "info": {
+    "_postman_id": "c1a2b3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+    "name": "LMS API Test",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "User Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const responseData = pm.response.json();",
+                  "pm.test(\"Response body contains access_token\", function () {",
+                  "    pm.expect(responseData.access_token).to.be.a('string');",
+                  "});",
+                  "if (responseData.access_token) {",
+                  "    pm.environment.set(\"accessToken\", responseData.access_token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "apikey",
+                "value": "{{supabaseAnonKey}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"pengajar@bts.com\",\n  \"password\": \"password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{supabaseUrl}}/auth/v1/token?grant_type=password",
+              "host": ["{{supabaseUrl}}"],
+              "path": ["auth", "v1", "token"],
+              "query": [
+                {
+                  "key": "grant_type",
+                  "value": "password"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Courses Management",
+      "item": [
+        {
+          "name": "POST Add New Course",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", () => {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "const responseData = pm.response.json();",
+                  "pm.test(\"Response body contains new course data\", () => {",
+                  "    pm.expect(responseData.data.course_id).to.exist;",
+                  "});",
+                  "if (responseData.data.course_id) {",
+                  "    pm.environment.set(\"newCourseId\", responseData.data.course_id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nama_course\": \"Tes Kursus via Postman\",\n  \"deskripsi\": \"Ini adalah deskripsi untuk tes.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/courses",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "courses"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET Course by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const responseData = pm.response.json();",
+                  "pm.test(\"Response body contains the correct course\", () => {",
+                  "    const newCourseId = pm.environment.get(\"newCourseId\");",
+                  "    pm.expect(responseData.data.course_id).to.eql(parseInt(newCourseId));",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{newCourseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "courses", "{{newCourseId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PUT Edit Course",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"nama_course\": \"Nama Kursus Diedit\",\n    \"deskripsi\": \"Deskripsi sudah diperbarui.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{newCourseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "courses", "{{newCourseId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE Course",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/{{newCourseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "courses", "{{newCourseId}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

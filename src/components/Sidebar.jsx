@@ -9,14 +9,12 @@ const teacherNavLinks = [
   { name: "Kelola Kursus", href: "/dashboard/pengajar/courses" },
   { name: "Laporan Progres", href: "/dashboard/pengajar/progress" },
   { name: "Penilaian Tugas", href: "/dashboard/pengajar/assignments" },
-
 ];
 
 const studentNavLinks = [
   { name: "Dashboard", href: "/dashboard" },
   { name: "Kursus Saya", href: "/dashboard/siswa/my-courses" },
   { name: "Progres Saya", href: "/dashboard/siswa/progress" },
-
 ];
 
 export default function Sidebar({ userRole }) {
