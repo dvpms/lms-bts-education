@@ -10,7 +10,7 @@ const Header = ({ user, onLogout }) => (
   <header className="bg-white shadow-sm p-4 flex justify-between items-center">
     <div />
     <div className="flex items-center">
-      <span className="text-sm mr-4">Selamat datang, {user?.email}</span>
+      <span className="text-sm mr-4">Selamat datang, {user?.nama_lengkap}</span>
       <button
         onClick={onLogout}
         className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 text-sm"
@@ -25,10 +25,11 @@ export default function DashboardLayout({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const supabase = createSupabaseBrowserClient();
+  console.log("user", user);
 
   useEffect(() => {
     const fetchUser = async () => {
+      const supabase = await createSupabaseBrowserClient();
       // Mengambil data sesi login
       const {
         data: { session },
@@ -42,7 +43,7 @@ export default function DashboardLayout({ children }) {
       // Mengambil data profil (termasuk peran) dari tabel public.users
       const { data: userData, error } = await supabase
         .from("users")
-        .select("role")
+        .select("role, nama_lengkap")
         .eq("user_id", session.user.id)
         .single();
 
@@ -58,7 +59,11 @@ export default function DashboardLayout({ children }) {
       }
 
       // Menggabungkan data auth dan data profil
-      const completeUser = { ...session.user, role: userData.role };
+      const completeUser = {
+        ...session.user,
+        role: userData.role,
+        nama_lengkap: userData.nama_lengkap,
+      };
       setUser(completeUser);
       setLoading(false);
     };
@@ -68,6 +73,7 @@ export default function DashboardLayout({ children }) {
   }, [router]);
 
   const handleLogout = async () => {
+    const supabase = await createSupabaseBrowserClient();
     await supabase.auth.signOut();
     router.push("/login");
   };

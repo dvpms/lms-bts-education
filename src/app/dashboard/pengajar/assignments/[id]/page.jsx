@@ -12,8 +12,13 @@ const SubmissionItem = ({ submission, onGradeSubmit }) => {
 
   const handleDownloadSubmission = async (filePath) => {
     const supabase = await createSupabaseBrowserClient();
-    const { data } = supabase.storage.from("lms-file").getPublicUrl(filePath);
-    window.open(data.publicUrl, "_blank");
+    const { data, error } = await supabase.storage
+      .from("lms-file")
+      .createSignedUrl(filePath, 60 * 60);
+    if (error || !data?.signedUrl) {
+      alert("Gagal membuat signed URL untuk file.");
+      return;
+    }
   };
 
   const handleSubmitGrade = async (e) => {
@@ -29,14 +34,17 @@ const SubmissionItem = ({ submission, onGradeSubmit }) => {
     }
   };
 
-  const sudahDinilai = submission.nilai !== null && submission.feedback !== null && submission.nilai !== "";
+  const sudahDinilai =
+    submission.nilai !== null &&
+    submission.feedback !== null &&
+    submission.nilai !== "";
   return (
     <div className="p-4 border rounded-md bg-slate-50">
       <div className="flex justify-between items-center">
         <div>
           <p className="font-semibold">{submission.users.nama_lengkap}</p>
           <p className="text-sm text-gray-500">
-            Dikumpulkan pada: {" "}
+            Dikumpulkan pada:{" "}
             {new Date(submission.submitted_at).toLocaleString()}
           </p>
         </div>
@@ -48,7 +56,9 @@ const SubmissionItem = ({ submission, onGradeSubmit }) => {
         </button>
       </div>
       {sudahDinilai ? (
-        <div className="mt-4 p-3 bg-green-100 text-green-800 rounded-md font-semibold">Sudah dinilai</div>
+        <div className="mt-4 p-3 bg-green-100 text-green-800 rounded-md font-semibold">
+          Sudah dinilai
+        </div>
       ) : (
         <form onSubmit={handleSubmitGrade} className="mt-4 space-y-2">
           <div>

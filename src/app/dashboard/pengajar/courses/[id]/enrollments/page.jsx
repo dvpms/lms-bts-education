@@ -8,14 +8,16 @@ const AddEnrollmentForm = ({ courseId, onEnrollmentAdded }) => {
   const [allStudents, setAllStudents] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [loadingStudents, setLoadingStudents] = useState(false);
 
   // Ambil daftar semua siswa yang ada di sistem
   useEffect(() => {
     const fetchStudents = async () => {
-      // API ini perlu kita buat
+      setLoadingStudents(true);
       const res = await fetch("/api/users?role=siswa");
       const data = await res.json();
       setAllStudents(data.data || []);
+      setLoadingStudents(false);
     };
     fetchStudents();
   }, []);
@@ -60,9 +62,10 @@ const AddEnrollmentForm = ({ courseId, onEnrollmentAdded }) => {
             value={selectedStudent}
             onChange={(e) => setSelectedStudent(e.target.value)}
             className="w-full p-2 border rounded mt-1"
+            disabled={loadingStudents}
           >
-            <option value="">-- Pilih Siswa --</option>
-            {allStudents.map((s) => (
+            <option value="">{loadingStudents ? "Memuat siswa..." : "-- Pilih Siswa --"}</option>
+            {!loadingStudents && allStudents.map((s) => (
               <option key={s.user_id} value={s.user_id}>
                 {s.nama_lengkap} ({s.email})
               </option>

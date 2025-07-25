@@ -139,7 +139,6 @@ export default function StudentCourseDetailPage() {
                       <p className="font-semibold">{a.judul_tugas}</p>
                       <p className="text-sm text-gray-500">{a.instruksi}</p>
                     </div>
-                    {/* --- PERUBAHAN DI SINI --- */}
                     {/* 2. Bungkus tombol dengan komponen Link */}
                     <Link
                       href={`/dashboard/siswa/assignments/${a.assignment_id}`}

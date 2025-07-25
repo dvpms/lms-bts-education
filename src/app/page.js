@@ -96,13 +96,6 @@ export default function LoginPage() {
             </button>
           </div>
         </form>
-
-        <p className="text-sm text-center text-gray-500">
-          Belum punya akun?
-          <a href="#" className="font-medium text-blue-600 hover:underline">
-            Daftar sekarang
-          </a>
-        </p>
       </div>
     </div>
   );
