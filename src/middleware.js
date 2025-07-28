@@ -7,6 +7,7 @@ export async function middleware(request) {
 
   // Allow public routes (login, register, favicon, static, etc)
   if (
+    pathname === "/" ||
     pathname.startsWith("/login") ||
     pathname.startsWith("/register") ||
     pathname.startsWith("/api") ||
@@ -34,7 +35,7 @@ export async function middleware(request) {
 
   if (!session) {
     // Redirect ke login jika belum login
-    const loginUrl = new URL("/login", request.url);
+    const loginUrl = new URL("/", request.url);
     return NextResponse.redirect(loginUrl);
   }
 

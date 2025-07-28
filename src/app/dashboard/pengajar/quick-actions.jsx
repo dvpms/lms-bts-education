@@ -1,21 +1,67 @@
-"use client";
 import Link from "next/link";
-import { FiPlusCircle, FiUpload, FiUserPlus } from "react-icons/fi";
-
+import { Books, UploadSimple, UserPlus } from "phosphor-react";
 export default function QuickActions() {
   return (
-    <div className="flex gap-4 mb-6">
-      <Link href="/dashboard/pengajar/courses" className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-700 transition">
-        <FiPlusCircle className="text-lg" />
-        <span>Buat Kursus</span>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+      {/* Kartu Buat Kursus */}
+      <Link
+        href="/dashboard/pengajar/courses"
+        className="group block bg-white p-6 rounded-xl shadow-lg hover:shadow-2xl hover:border-green-500 border-2 border-transparent hover:-translate-y-2 transition-all duration-300"
+      >
+        <div className="flex items-center gap-4">
+          <div className="p-4 bg-green-100 rounded-full group-hover:bg-green-500 transition-colors">
+            <Books
+              className="text-3xl text-green-600 group-hover:text-white transition-colors"
+              weight="bold"
+            />
+          </div>
+          <div>
+            <h3 className="text-lg font-bold text-gray-900">Buat Kursus</h3>
+            <p className="text-sm text-gray-500 mt-1">
+              Buat, edit, dan atur kursus Anda.
+            </p>
+          </div>
+        </div>
       </Link>
-      <Link href="/dashboard/pengajar/courses" className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg shadow hover:bg-green-700 transition">
-        <FiUpload className="text-lg" />
-        <span>Upload Materi</span>
+      {/* Kartu Upload Materi */}
+      <Link
+        href="/dashboard/pengajar/courses"
+        className="group block bg-white p-6 rounded-xl shadow-lg hover:shadow-2xl hover:border-blue-500 border-2 border-transparent hover:-translate-y-2 transition-all duration-300"
+      >
+        <div className="flex items-center gap-4">
+          <div className="p-4 bg-blue-100 rounded-full group-hover:bg-blue-500 transition-colors">
+            <UploadSimple
+              className="text-3xl text-blue-600 group-hover:text-white transition-colors"
+              weight="bold"
+            />
+          </div>
+          <div>
+            <h3 className="text-lg font-bold text-gray-900">Upload Materi</h3>
+            <p className="text-sm text-gray-500 mt-1">
+              Unggah materi pembelajaran baru.
+            </p>
+          </div>
+        </div>
       </Link>
-      <Link href="/dashboard/pengajar/users" className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg shadow hover:bg-indigo-700 transition">
-        <FiUserPlus className="text-lg" />
-        <span>Tambah User</span>
+      {/* Kartu Tambah User */}
+      <Link
+        href="/dashboard/pengajar/users"
+        className="group block bg-white p-6 rounded-xl shadow-lg hover:shadow-2xl hover:border-yellow-500 border-2 border-transparent hover:-translate-y-2 transition-all duration-300"
+      >
+        <div className="flex items-center gap-4">
+          <div className="p-4 bg-yellow-100 rounded-full group-hover:bg-yellow-500 transition-colors">
+            <UserPlus
+              className="text-3xl text-yellow-600 group-hover:text-white transition-colors"
+              weight="bold"
+            />
+          </div>
+          <div>
+            <h3 className="text-lg font-bold text-gray-900">Tambah User</h3>
+            <p className="text-sm text-gray-500 mt-1">
+              Tambah pengajar atau siswa baru.
+            </p>
+          </div>
+        </div>
       </Link>
     </div>
   );

@@ -54,7 +54,7 @@ export default function DashboardPage() {
         data: { session },
       } = await supabase.auth.getSession();
       if (!session) {
-        router.push("/login");
+        router.push("/");
         return;
       }
       const { data: userData, error } = await supabase
@@ -64,7 +64,7 @@ export default function DashboardPage() {
         .single();
       if (error || !userData) {
         await supabase.auth.signOut();
-        router.push("/login");
+        router.push("/");
         return;
       }
       setUserRole(userData.role);
