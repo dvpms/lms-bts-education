@@ -2,57 +2,102 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FiBookOpen, FiUsers, FiBarChart2, FiClipboard } from "react-icons/fi";
+import Image from "next/image";
+import {
+  Layout,
+  Books,
+  Users,
+  ChartBar,
+  SignOut,
+  UserPlus,
+} from "phosphor-react";
 
-// Daftar menu untuk setiap peran
+// Daftar menu sidebar untuk pengajar
 const teacherNavLinks = [
-  { name: "Dashboard", href: "/dashboard", icon: <FiBookOpen /> },
-  { name: "Kelola Kursus", href: "/dashboard/pengajar/courses", icon: <FiUsers /> },
-  { name: "Kelola User", href: "/dashboard/pengajar/users", icon: <FiUsers /> },
-  { name: "Laporan Progres", href: "/dashboard/pengajar/progress", icon: <FiBarChart2 /> },
-  { name: "Penilaian Tugas", href: "/dashboard/pengajar/assignments", icon: <FiClipboard /> },
+  {
+    name: "Dashboard",
+    href: "/dashboard",
+    icon: <Layout weight="fill" size={22} />,
+  },
+  {
+    name: "Kelola Kursus",
+    href: "/dashboard/pengajar/courses",
+    icon: <Books weight="fill" size={22} />,
+  },
+  {
+    name: "Kelola User",
+    href: "/dashboard/pengajar/users",
+    icon: <Users weight="fill" size={22} />,
+  },
+  {
+    name: "Laporan Progres",
+    href: "/dashboard/pengajar/progress",
+    icon: <ChartBar weight="fill" size={22} />,
+  },
 ];
 
-const studentNavLinks = [
-  { name: "Dashboard", href: "/dashboard", icon: <FiBookOpen /> },
-  { name: "Kursus Saya", href: "/dashboard/siswa/my-courses", icon: <FiUsers /> },
-  { name: "Progres Saya", href: "/dashboard/siswa/progress", icon: <FiBarChart2 /> },
-];
-
-export default function Sidebar({ userRole }) {
+export default function Sidebar({
+  userRole = "pengajar",
+  userName = "Budi Pengajar",
+  avatarUrl = "https://placehold.co/100x100/4A5568/FFFFFF?text=BP",
+}) {
   const pathname = usePathname();
-
-  // Pilih daftar menu berdasarkan peran pengguna
-  const navLinks = userRole === "pengajar" ? teacherNavLinks : studentNavLinks;
+  const navLinks = teacherNavLinks;
 
   return (
-    <aside className="w-64 bg-gradient-to-b from-blue-50 to-slate-100 shadow-xl flex-shrink-0 border-r border-slate-200">
-      <div className="p-6 flex flex-col items-center">
-        <h1 className="text-2xl font-bold text-blue-600 tracking-wide mb-2">LMS BTS</h1>
-        <span className="text-xs bg-blue-100 text-blue-800 font-semibold px-2 py-1 rounded-full mb-2">
-          {userRole}
-        </span>
+    <aside className="w-64 bg-gradient-to-b from-green-600 to-green-800 text-white flex-shrink-0 flex flex-col h-screen">
+      <div className="p-6 flex items-center gap-3 border-b border-green-700/50">
+        <Image
+          src="/logo.png"
+          alt="Logo BTS Education"
+          width={80}
+          height={80}
+          className="rounded-full"
+        />
+        <div>
+          <h1 className="text-lg font-semibold">LMS BTS</h1>
+          <span className="text-xs bg-white/20 text-green-100 font-semibold px-2 py-0.5 rounded-full">
+            {userRole.charAt(0).toUpperCase() + userRole.slice(1)}
+          </span>
+        </div>
       </div>
-      <nav className="mt-2">
+      <nav className="mt-6 flex-grow px-4 space-y-2">
         {navLinks.map((link) => {
-          // Gunakan path yang benar-benar sama untuk highlight
           const isActive = pathname === link.href;
           return (
             <Link
               key={link.name}
               href={link.href}
-              className={`flex items-center gap-3 px-6 py-3 my-1 rounded-lg transition-all duration-150 text-base font-medium hover:bg-blue-100 hover:text-blue-700 ${
+              className={`flex items-center px-4 py-2.5 rounded-lg transition-colors font-medium ${
                 isActive
-                  ? "bg-blue-600 text-white shadow-md"
-                  : "text-gray-700"
+                  ? "bg-white text-green-800 shadow-lg font-semibold"
+                  : "text-green-100 hover:bg-white/10"
               }`}
             >
               <span className="text-xl">{link.icon}</span>
-              <span>{link.name}</span>
+              <span className="ml-3">{link.name}</span>
             </Link>
           );
         })}
       </nav>
+      <div className="p-4 border-t border-green-700/50">
+        <Link
+          href="#"
+          className="flex items-center w-full p-3 hover:bg-white/10 rounded-lg transition-colors"
+        >
+          <Image
+            className="h-9 w-9 rounded-full object-cover"
+            src={avatarUrl}
+            alt="Avatar"
+            width={36}
+            height={36}
+          />
+          <div className="ml-3">
+            <p className="text-sm font-semibold text-white">{userName}</p>
+            <p className="text-xs text-green-200">Lihat Profil</p>
+          </div>
+        </Link>
+      </div>
     </aside>
   );
 }

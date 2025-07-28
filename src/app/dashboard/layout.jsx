@@ -89,7 +89,7 @@ export default function DashboardLayout({ children }) {
   return (
     <div className="flex h-screen bg-slate-100">
       {/* Melemparkan peran pengguna ke Sidebar */}
-      <Sidebar userRole={user.role} />
+      <Sidebar userRole={user.role} userName={user.nama_lengkap} />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header user={user} onLogout={handleLogout} />
         <main className="flex-1 overflow-x-hidden overflow-y-auto p-8">
