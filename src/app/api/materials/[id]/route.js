@@ -3,8 +3,8 @@ import { NextResponse } from "next/server";
 
 // Fungsi untuk memperbarui (update) data materi (hanya teks, bukan file)
 export async function PUT(request, { params }) {
-  const supabase = createSupabaseServerClient();
-  const { id } = params;
+  const supabase = await createSupabaseServerClient();
+  const { id } = await params;
 
   try {
     const {
@@ -33,8 +33,8 @@ export async function PUT(request, { params }) {
 
 // Fungsi untuk menghapus materi
 export async function DELETE(request, { params }) {
-  const supabase = createSupabaseServerClient();
-  const { id } = params;
+  const supabase = await createSupabaseServerClient();
+  const { id } = await params;
 
   try {
     const {

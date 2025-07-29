@@ -36,7 +36,7 @@ export default function DashboardLayout({ children }) {
       } = await supabase.auth.getSession();
 
       if (!session) {
-        router.push("/login");
+        router.push("/");
         return;
       }
 
@@ -54,7 +54,7 @@ export default function DashboardLayout({ children }) {
           error
         );
         await supabase.auth.signOut();
-        router.push("/login");
+        router.push("/");
         return;
       }
 
@@ -75,7 +75,7 @@ export default function DashboardLayout({ children }) {
   const handleLogout = async () => {
     const supabase = await createSupabaseBrowserClient();
     await supabase.auth.signOut();
-    router.push("/login");
+    router.push("/");
   };
 
   if (loading) {
