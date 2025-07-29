@@ -25,7 +25,7 @@ export default function ManageCoursesPage() {
         const errorText = await response.text();
         if (errorText.includes("<!DOCTYPE html>")) {
           alert("Sesi Anda mungkin telah berakhir. Silakan login kembali.");
-          router.push("/login");
+          router.push("/");
         }
         return;
       }

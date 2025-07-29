@@ -11,7 +11,7 @@ export default function AssignmentSubmissionsPage() {
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      const supabase = createSupabaseBrowserClient();
+      const supabase = await createSupabaseBrowserClient();
       // Ambil data submissions beserta relasi user dan assignment
       const { data, error } = await supabase
         .from("submissions")
@@ -25,7 +25,7 @@ export default function AssignmentSubmissionsPage() {
   const handleDownload = async (filePath) => {
     let cleanPath = filePath;
     if (filePath.startsWith("/")) cleanPath = filePath.slice(1);
-    const supabase = createSupabaseBrowserClient();
+    const supabase = await createSupabaseBrowserClient();
     const { data, error } = await supabase.storage.from("lms-file").createSignedUrl(cleanPath, 60 * 60);
     if (error || !data?.signedUrl) {
       alert("Gagal membuat signed URL untuk file.");

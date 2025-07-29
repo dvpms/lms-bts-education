@@ -36,58 +36,72 @@ export async function GET(request) {
   }
 }
 
-// --- FUNGSI BARU ---
-// Fungsi untuk mendaftarkan siswa baru ke dalam kursus
+
+// --- CRUD USER API ROUTES ---
+// POST: Tambah user baru
 export async function POST(request) {
-  const supabase = createSupabaseServerClient();
-
+  const supabase = await createSupabaseServerClient();
   try {
-    // 1. Memeriksa apakah pengguna yang login adalah 'pengajar'
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    // Anda bisa menambahkan validasi peran 'pengajar' di sini jika perlu
-    if (!user) {
-      return NextResponse.json({ message: "Tidak diizinkan" }, { status: 401 });
+    const body = await request.json();
+    const { email, nama_lengkap, role, password } = body;
+    if (!email || !nama_lengkap || !role || !password) {
+      return NextResponse.json({ message: "Data user wajib diisi" }, { status: 400 });
     }
-
-    // 2. Mengambil data dari body permintaan
-    const { id_course, id_siswa } = await request.json();
-
-    if (!id_course || !id_siswa) {
-      return NextResponse.json(
-        { message: "ID Kursus dan ID Siswa wajib diisi" },
-        { status: 400 }
-      );
-    }
-
-    // 3. Memasukkan data pendaftaran baru ke database
-    const { data, error } = await supabase
-      .from("enrollments")
-      .insert([{ id_course, id_siswa }])
-      .select()
-      .single();
-
-    // Menangani error jika siswa sudah terdaftar (karena UNIQUE constraint)
-    if (error && error.code === "23505") {
-      // Kode error untuk pelanggaran unique
-      return NextResponse.json(
-        { message: "Siswa ini sudah terdaftar di kursus tersebut." },
-        { status: 409 }
-      ); // 409 Conflict
-    }
-
-    if (error) throw error;
-
-    // 4. Mengembalikan respons berhasil
-    return NextResponse.json(
-      { message: "Siswa berhasil didaftarkan", data },
-      { status: 201 }
-    );
+    // Buat user auth
+    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+    });
+    if (authError) throw authError;
+    const { user } = authData;
+    // Insert ke tabel users
+    const { error: dbError } = await supabase.from("users").insert({
+      user_id: user.id,
+      email,
+      nama_lengkap,
+      role,
+    });
+    if (dbError) throw dbError;
+    return NextResponse.json({ message: "User berhasil ditambahkan" }, { status: 201 });
   } catch (error) {
-    return NextResponse.json(
-      { message: "Error enrolling student", error: error.message },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: "Gagal menambah user", error: error.message }, { status: 500 });
+  }
+}
+
+// PATCH: Edit user (parsial)
+export async function PATCH(request) {
+  const supabase = await createSupabaseServerClient();
+  try {
+    const body = await request.json();
+    const { user_id, nama_lengkap, role } = body;
+    if (!user_id) {
+      return NextResponse.json({ message: "user_id wajib diisi" }, { status: 400 });
+    }
+    const updateData = {};
+    if (nama_lengkap !== undefined) updateData.nama_lengkap = nama_lengkap;
+    if (role !== undefined) updateData.role = role;
+    const { error } = await supabase.from("users").update(updateData).eq("user_id", user_id);
+    if (error) throw error;
+    return NextResponse.json({ message: "User berhasil diupdate" });
+  } catch (error) {
+    return NextResponse.json({ message: "Gagal update user", error: error.message }, { status: 500 });
+  }
+}
+
+// DELETE: Hapus user
+export async function DELETE(request) {
+  const supabase = await createSupabaseServerClient();
+  try {
+    const { searchParams } = new URL(request.url);
+    const user_id = searchParams.get("user_id");
+    if (!user_id) {
+      return NextResponse.json({ message: "user_id wajib diisi" }, { status: 400 });
+    }
+    const { error } = await supabase.from("users").delete().eq("user_id", user_id);
+    if (error) throw error;
+    return NextResponse.json({ message: "User berhasil dihapus" });
+  } catch (error) {
+    return NextResponse.json({ message: "Gagal hapus user", error: error.message }, { status: 500 });
   }
 }

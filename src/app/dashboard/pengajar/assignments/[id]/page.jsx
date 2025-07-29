@@ -45,9 +45,12 @@ const SubmissionItem = ({ submission, onGradeSubmit }) => {
     <div className="submission-item p-5 border rounded-lg bg-slate-50">
       <div className="flex justify-between items-start mb-4">
         <div>
-          <p className="font-semibold text-gray-900">{submission.users.nama_lengkap}</p>
+          <p className="font-semibold text-gray-900">
+            {submission.users.nama_lengkap}
+          </p>
           <p className="text-sm text-gray-500">
-            Dikumpulkan pada: {new Date(submission.submitted_at).toLocaleString()}
+            Dikumpulkan pada:{" "}
+            {new Date(submission.submitted_at).toLocaleString()}
           </p>
         </div>
         <div className="flex items-center gap-4">
@@ -70,7 +73,9 @@ const SubmissionItem = ({ submission, onGradeSubmit }) => {
       <form className="grading-form" onSubmit={handleSubmitGrade}>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Nilai</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
+              Nilai
+            </label>
             <input
               type="number"
               name="nilai"
@@ -83,7 +88,9 @@ const SubmissionItem = ({ submission, onGradeSubmit }) => {
             />
           </div>
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Feedback</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
+              Feedback
+            </label>
             <textarea
               name="feedback"
               rows="3"
@@ -131,15 +138,15 @@ export default function GradingPage() {
   const dummySubmissions = [
     {
       submission_id: "dummy-1",
-      users: { nama_lengkap: "Budi Santoso" },
+      users: { nama_lengkap: "Budi Santoso (dummy)" },
       submitted_at: new Date().toISOString(),
       file_path: "dummy/budi-jawaban.pdf",
       nilai: 100,
-      feedback: "Good job, Budi! Jawaban lengkap dan benar.",
+      feedback: "Good job, Budi! Jawaban lengkap dan benar.)",
     },
     {
       submission_id: "dummy-2",
-      users: { nama_lengkap: "Siti Aminah" },
+      users: { nama_lengkap: "Siti Aminah (dummy)" },
       submitted_at: new Date(Date.now() - 3600 * 1000).toISOString(),
       file_path: "dummy/siti-jawaban.pdf",
       nilai: null,
@@ -147,7 +154,7 @@ export default function GradingPage() {
     },
     {
       submission_id: "dummy-3",
-      users: { nama_lengkap: "Rizky Pratama" },
+      users: { nama_lengkap: "Rizky Pratama (dummy)" },
       submitted_at: new Date(Date.now() - 2 * 3600 * 1000).toISOString(),
       file_path: "dummy/rizky-jawaban.pdf",
       nilai: null,
@@ -197,7 +204,8 @@ export default function GradingPage() {
   if (loading) return <div>Memuat data pengumpulan tugas...</div>;
 
   // Always show dummy submissions for demo if no real data
-  const displaySubmissions = submissions.length > 0 ? submissions : dummySubmissions;
+  const displaySubmissions =
+    submissions.length > 0 ? submissions : dummySubmissions;
 
   return (
     <div className="flex-1 overflow-y-auto p-8">
@@ -205,12 +213,14 @@ export default function GradingPage() {
         <button
           type="button"
           className="text-sm text-green-600 hover:underline flex items-center gap-2 mb-4"
-          onClick={() => router.push("/dashboard/pengajar/courses")}
+          onClick={() => router.back()}
         >
           <FiArrowLeft />
           Kembali ke Detail Kursus
         </button>
-        <h2 className="text-4xl font-extrabold text-gray-800 tracking-tight">Penilaian Tugas</h2>
+        <h2 className="text-4xl font-extrabold text-gray-800 tracking-tight">
+          Penilaian Tugas
+        </h2>
         <p className="text-gray-500 mt-2 max-w-2xl">
           Tinjau dan berikan nilai untuk tugas
           <span className="font-semibold"> "{dummyAssignment.judul}" </span>
@@ -220,7 +230,9 @@ export default function GradingPage() {
       </div>
 
       <div className="bg-white p-6 rounded-xl shadow-lg">
-        <h3 className="text-2xl font-bold text-gray-800 mb-6">Daftar Pengumpulan</h3>
+        <h3 className="text-2xl font-bold text-gray-800 mb-6">
+          Daftar Pengumpulan
+        </h3>
         <div className="space-y-6">
           {displaySubmissions.length > 0 ? (
             displaySubmissions.map((sub) => (

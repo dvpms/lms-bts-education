@@ -125,8 +125,6 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Bagian 'ingat saya' dan 'lupa password' dihapus sesuai permintaan */}
-
             {error && <p className="text-sm text-red-600">{error}</p>}
 
             <div>
@@ -140,7 +138,6 @@ export default function LoginPage() {
             </div>
           </form>
 
-          {/* Bagian 'daftar sekarang' dihapus sesuai permintaan */}
         </div>
       </div>
     </div>
