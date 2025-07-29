@@ -1,9 +1,12 @@
 
 "use client";
 
+
 import { FiArrowLeft, FiPlusCircle, FiX, FiTrash2, FiEdit2 } from "react-icons/fi";
 import { BsDownload } from "react-icons/bs";
 import { HiOutlineEye } from "react-icons/hi";
+import Swal from "sweetalert2";
+import "sweetalert2/dist/sweetalert2.min.css";
 
 import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
@@ -464,48 +467,76 @@ export default function CourseDetailPage() {
 
   // Remove student from course
   const handleRemoveEnrollment = async (enrollmentId) => {
-    if (!window.confirm("Keluarkan siswa dari kursus ini?")) return;
+    const result = await Swal.fire({
+      title: "Keluarkan siswa?",
+      text: "Keluarkan siswa dari kursus ini?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Ya, keluarkan",
+      cancelButtonText: "Batal",
+    });
+    if (!result.isConfirmed) return;
     try {
       const response = await fetch(`/api/enrollments/${enrollmentId}`, {
         method: "DELETE",
       });
       if (!response.ok) throw new Error("Gagal mengeluarkan siswa");
-      alert("Siswa dikeluarkan dari kursus");
+      await Swal.fire("Berhasil!", "Siswa dikeluarkan dari kursus.", "success");
       fetchEnrollments();
     } catch (error) {
-      alert(error.message);
+      Swal.fire("Gagal", error.message, "error");
     }
   };
 
   // Delete Material
   const handleDeleteMaterial = async (materialId) => {
-    if (window.confirm("Apakah Anda yakin ingin menghapus materi ini?")) {
-      try {
-        const response = await fetch(`/api/materials/${materialId}`, {
-          method: "DELETE",
-        });
-        if (!response.ok) throw new Error("Gagal menghapus materi");
-        alert("Materi berhasil dihapus");
-        fetchData();
-      } catch (error) {
-        alert(error.message);
-      }
+    const result = await Swal.fire({
+      title: "Hapus materi?",
+      text: "Apakah Anda yakin ingin menghapus materi ini?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Ya, hapus",
+      cancelButtonText: "Batal",
+    });
+    if (!result.isConfirmed) return;
+    try {
+      const response = await fetch(`/api/materials/${materialId}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) throw new Error("Gagal menghapus materi");
+      await Swal.fire("Berhasil!", "Materi berhasil dihapus.", "success");
+      fetchData();
+    } catch (error) {
+      Swal.fire("Gagal", error.message, "error");
     }
   };
 
   // Delete Assignment
   const handleDeleteAssignment = async (assignmentId) => {
-    if (window.confirm("Apakah Anda yakin ingin menghapus tugas ini?")) {
-      try {
-        const response = await fetch(`/api/assignments/${assignmentId}`, {
-          method: "DELETE",
-        });
-        if (!response.ok) throw new Error("Gagal menghapus tugas");
-        alert("Tugas berhasil dihapus");
-        fetchData();
-      } catch (error) {
-        alert(error.message);
-      }
+    const result = await Swal.fire({
+      title: "Hapus tugas?",
+      text: "Apakah Anda yakin ingin menghapus tugas ini?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Ya, hapus",
+      cancelButtonText: "Batal",
+    });
+    if (!result.isConfirmed) return;
+    try {
+      const response = await fetch(`/api/assignments/${assignmentId}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) throw new Error("Gagal menghapus tugas");
+      await Swal.fire("Berhasil!", "Tugas berhasil dihapus.", "success");
+      fetchData();
+    } catch (error) {
+      Swal.fire("Gagal", error.message, "error");
     }
   };
 

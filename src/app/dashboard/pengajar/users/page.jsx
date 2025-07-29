@@ -1,8 +1,11 @@
 "use client";
 
+
 import { useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { FiUserPlus, FiX, FiEdit2, FiTrash2 } from "react-icons/fi";
+import Swal from "sweetalert2";
+import "sweetalert2/dist/sweetalert2.min.css";
 
 export default function ManageUsersPage() {
   const [users, setUsers] = useState([]);
@@ -19,7 +22,17 @@ export default function ManageUsersPage() {
   const [showModal, setShowModal] = useState(false);
 
   const handleDeleteUser = async (user) => {
-    if (!window.confirm(`Yakin ingin menghapus user ${user.email}?`)) return;
+    const result = await Swal.fire({
+      title: `Hapus user?`,
+      text: `Yakin ingin menghapus user ${user.email}?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Ya, hapus",
+      cancelButtonText: "Batal",
+    });
+    if (!result.isConfirmed) return;
     setSubmitting(true);
     setError("");
     try {
@@ -34,9 +47,10 @@ export default function ManageUsersPage() {
         .from("users")
         .select("user_id, email, nama_lengkap, role");
       setUsers(data || []);
-      alert("User berhasil dihapus!");
+      await Swal.fire("Berhasil!", "User berhasil dihapus!", "success");
     } catch (err) {
       setError(err.message);
+      Swal.fire("Gagal", err.message, "error");
     } finally {
       setSubmitting(false);
     }
@@ -116,7 +130,7 @@ export default function ManageUsersPage() {
         setEditingUser(null);
         setForm({ email: "", nama_lengkap: "", role: "siswa", password: "" });
         setShowModal(false);
-        alert("User berhasil diupdate!");
+        await Swal.fire("Berhasil!", "User berhasil diupdate!", "success");
       } else {
         // Tambah user baru
         const { data: authData, error: authError } = await supabase.auth.signUp(
@@ -136,7 +150,7 @@ export default function ManageUsersPage() {
         if (dbError) throw dbError;
         setForm({ email: "", nama_lengkap: "", role: "siswa", password: "" });
         setShowModal(false);
-        alert("User berhasil ditambahkan!");
+        await Swal.fire("Berhasil!", "User berhasil ditambahkan!", "success");
       }
       // Refresh daftar user
       const { data } = await supabase
