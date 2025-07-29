@@ -63,7 +63,12 @@ export default function Sidebar({
       </div>
       <nav className="mt-6 flex-grow px-4 space-y-2">
         {navLinks.map((link) => {
-          const isActive = pathname === link.href;
+          let isActive;
+          if (link.href === "/dashboard") {
+            isActive = pathname === link.href;
+          } else {
+            isActive = pathname === link.href || pathname.startsWith(link.href + "/");
+          }
           return (
             <Link
               key={link.name}

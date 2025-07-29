@@ -2,7 +2,6 @@
 
 
 import { useEffect, useState } from "react";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { FiUserPlus, FiX, FiEdit2, FiTrash2 } from "react-icons/fi";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
@@ -36,18 +35,14 @@ export default function ManageUsersPage() {
     setSubmitting(true);
     setError("");
     try {
-      const supabase = createSupabaseBrowserClient();
-      const { error: dbError } = await supabase
-        .from("users")
-        .delete()
-        .eq("user_id", user.user_id);
-      if (dbError) throw dbError;
-      // Refresh daftar user
-      const { data } = await supabase
-        .from("users")
-        .select("user_id, email, nama_lengkap, role");
-      setUsers(data || []);
+      const res = await fetch(`/api/users?user_id=${user.user_id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Gagal menghapus user");
       await Swal.fire("Berhasil!", "User berhasil dihapus!", "success");
+      // Refresh daftar user
+      fetchUsers();
     } catch (err) {
       setError(err.message);
       Swal.fire("Gagal", err.message, "error");
@@ -72,21 +67,22 @@ export default function ManageUsersPage() {
     },
   ];
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      setLoading(true);
-      try {
-        const supabase = createSupabaseBrowserClient();
-        const { data, error } = await supabase
-          .from("users")
-          .select("user_id, email, nama_lengkap, role");
-        if (error) setError(error.message);
-        setUsers(data && data.length > 0 ? data : dummyUsers);
-      } catch (err) {
+  const fetchUsers = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/users");
+      const data = await res.json();
+      if (data && data.data && data.data.length > 0) {
+        setUsers(data.data);
+      } else {
         setUsers(dummyUsers);
       }
-      setLoading(false);
-    };
+    } catch (err) {
+      setUsers(dummyUsers);
+    }
+    setLoading(false);
+  };
+  useEffect(() => {
     fetchUsers();
   }, []);
 
@@ -116,47 +112,43 @@ export default function ManageUsersPage() {
     setSubmitting(true);
     setError("");
     try {
-      const supabase = createSupabaseBrowserClient();
       if (editingUser) {
-        // Edit user (update nama_lengkap & role, email tidak diedit)
-        const { error: dbError } = await supabase
-          .from("users")
-          .update({
+        // Edit user (PATCH)
+        const res = await fetch("/api/users", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            user_id: editingUser.user_id,
             nama_lengkap: form.nama_lengkap,
             role: form.role,
-          })
-          .eq("user_id", editingUser.user_id);
-        if (dbError) throw dbError;
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || "Gagal update user");
         setEditingUser(null);
         setForm({ email: "", nama_lengkap: "", role: "siswa", password: "" });
         setShowModal(false);
         await Swal.fire("Berhasil!", "User berhasil diupdate!", "success");
       } else {
-        // Tambah user baru
-        const { data: authData, error: authError } = await supabase.auth.signUp(
-          {
+        // Tambah user baru (POST)
+        const res = await fetch("/api/users", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
             email: form.email,
+            nama_lengkap: form.nama_lengkap,
+            role: form.role,
             password: form.password,
-          }
-        );
-        if (authError) throw authError;
-        const { user } = authData;
-        const { error: dbError } = await supabase.from("users").insert({
-          user_id: user.id,
-          email: form.email,
-          nama_lengkap: form.nama_lengkap,
-          role: form.role,
+          }),
         });
-        if (dbError) throw dbError;
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || "Gagal tambah user");
         setForm({ email: "", nama_lengkap: "", role: "siswa", password: "" });
         setShowModal(false);
         await Swal.fire("Berhasil!", "User berhasil ditambahkan!", "success");
       }
       // Refresh daftar user
-      const { data } = await supabase
-        .from("users")
-        .select("user_id, email, nama_lengkap, role");
-      setUsers(data && data.length > 0 ? data : dummyUsers);
+      fetchUsers();
     } catch (err) {
       setError(err.message);
     } finally {

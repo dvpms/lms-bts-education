@@ -160,7 +160,7 @@ export default function RegisterPage() {
         <p className="text-sm text-center text-gray-500">
           Sudah punya akun?{" "}
           <Link
-            href="/login"
+            href="/"
             className="font-medium text-blue-600 hover:underline"
           >
             Masuk di sini
