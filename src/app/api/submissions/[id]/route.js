@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 // Fungsi untuk memperbarui (update) sebuah submission dengan nilai dan feedback
 export async function PUT(request, { params }) {
   const supabase = await createSupabaseServerClient();
-  const { id: submissionId } = params; // Mengambil ID submission dari URL
+  const { id: submissionId } = await params; // Mengambil ID submission dari URL
 
   try {
     // 1. Memeriksa apakah pengguna yang login adalah 'pengajar'
