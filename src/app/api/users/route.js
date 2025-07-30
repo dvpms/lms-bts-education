@@ -1,4 +1,5 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
 
 // Fungsi untuk mengambil semua pendaftaran (siswa) dalam sebuah kursus
@@ -38,34 +39,63 @@ export async function GET(request) {
 
 
 // --- CRUD USER API ROUTES ---
-// POST: Tambah user baru
+// POST: Tambah user baru (pakai admin client)
 export async function POST(request) {
-  const supabase = await createSupabaseServerClient();
+  const logError = (context, error) => {
+    console.error(`[User Registration Error - ${context}]`, {
+      message: error.message,
+      stack: error.stack,
+      timestamp: new Date().toISOString()
+    });
+  };
   try {
     const body = await request.json();
     const { email, nama_lengkap, role, password } = body;
-    if (!email || !nama_lengkap || !role || !password) {
-      return NextResponse.json({ message: "Data user wajib diisi" }, { status: 400 });
+    const validationErrors = [];
+    if (!email) validationErrors.push("Email wajib diisi");
+    if (!nama_lengkap) validationErrors.push("Nama lengkap wajib diisi");
+    if (!role) validationErrors.push("Role wajib diisi");
+    if (!password) validationErrors.push("Password wajib diisi");
+    if (validationErrors.length > 0) {
+      return NextResponse.json({ message: "Validasi gagal", errors: validationErrors }, { status: 400 });
     }
-    // Buat user auth
-    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+    const supabase = await createSupabaseServerClient();
+    const adminClient = createSupabaseAdminClient();
+    // Cek email hanya di tabel users (karena Auth dan tabel users selalu sinkron)
+    const { data: existingUser } = await supabase.from("users").select("*").eq("email", email).single();
+    if (existingUser) {
+      return NextResponse.json({ message: "Gagal mendaftar", error: "Email sudah terdaftar" }, { status: 409 });
+    }
+    const { data: authData, error: authError } = await adminClient.auth.admin.createUser({
       email,
       password,
       email_confirm: true,
+      user_metadata: { role, nama_lengkap }
     });
-    if (authError) throw authError;
+    if (authError) {
+      logError("Auth User Creation", authError);
+      return NextResponse.json({ message: "Gagal membuat user", error: authError.message }, { status: 500 });
+    }
     const { user } = authData;
-    // Insert ke tabel users
-    const { error: dbError } = await supabase.from("users").insert({
+    const { error: dbError } = await supabase.from("users").upsert({
       user_id: user.id,
       email,
       nama_lengkap,
       role,
+      created_at: new Date().toISOString()
     });
-    if (dbError) throw dbError;
-    return NextResponse.json({ message: "User berhasil ditambahkan" }, { status: 201 });
+    if (dbError) {
+      try { await adminClient.auth.admin.deleteUser(user.id); } catch (rollbackError) { logError("Auth User Rollback", rollbackError); }
+      logError("User Table Insert", dbError);
+      return NextResponse.json({ message: "Gagal menambah user", error: dbError.message }, { status: 500 });
+    }
+    return NextResponse.json({
+      message: "User berhasil ditambahkan",
+      user: { id: user.id, email, nama_lengkap, role }
+    }, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ message: "Gagal menambah user", error: error.message }, { status: 500 });
+    logError("Unexpected Error", error);
+    return NextResponse.json({ message: "Terjadi kesalahan server", error: error.message }, { status: 500 });
   }
 }
 
@@ -89,15 +119,22 @@ export async function PATCH(request) {
   }
 }
 
-// DELETE: Hapus user
+// DELETE: Hapus user dari Auth dan tabel users
 export async function DELETE(request) {
   const supabase = await createSupabaseServerClient();
+  const adminClient = await createSupabaseAdminClient();
   try {
     const { searchParams } = new URL(request.url);
     const user_id = searchParams.get("user_id");
     if (!user_id) {
       return NextResponse.json({ message: "user_id wajib diisi" }, { status: 400 });
     }
+    // Hapus user dari Auth pakai admin client
+    const { error: authError } = await adminClient.auth.admin.deleteUser(user_id);
+    if (authError) {
+      return NextResponse.json({ message: "Gagal hapus user dari Auth", error: authError.message }, { status: 500 });
+    }
+    // Hapus user dari tabel users
     const { error } = await supabase.from("users").delete().eq("user_id", user_id);
     if (error) throw error;
     return NextResponse.json({ message: "User berhasil dihapus" });

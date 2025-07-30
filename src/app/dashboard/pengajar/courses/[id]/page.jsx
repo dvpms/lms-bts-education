@@ -388,7 +388,7 @@ export default function CourseDetailPage() {
 
         {/* Modal Tambah/Edit Materi */}
         {showMaterialModal && (
-          <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 modal-transition">
+          <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-50 modal-transition">
             <div className="bg-white p-8 rounded-xl shadow-xl w-full max-w-lg transform modal-transition">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold text-gray-800">
@@ -421,7 +421,7 @@ export default function CourseDetailPage() {
 
         {/* Modal Tambah/Edit Tugas */}
         {showTaskModal && (
-          <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 modal-transition">
+          <div className="fixed inset-0 bg-black/10 flex items-center justify-center z-50 modal-transition">
             <div className="bg-white p-8 rounded-xl shadow-xl w-full max-w-lg transform modal-transition">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold text-gray-800">
