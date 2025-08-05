@@ -109,6 +109,7 @@ export default function ProgressReportPage() {
       const res = await fetch(`/api/progress?enrollmentId=${enrollmentId}`);
       const data = await res.json();
       let dbProgress = data.data || [];
+      console.log("DB Progress:", dbProgress);
       const dummy = dummyProgress[enrollmentId] || [];
       // Gabungkan dummy dan db, hindari duplikat berdasarkan record_id
       const allProgress = [

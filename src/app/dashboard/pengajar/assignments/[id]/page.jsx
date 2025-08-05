@@ -4,20 +4,33 @@ import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { FiArrowLeft, FiDownload, FiCheckCircle } from "react-icons/fi";
+import Swal from "sweetalert2";
 
-// Komponen untuk setiap baris submission (UI sesuai permintaan)
+const statusOptions = [
+  { value: "Selesai", label: "Selesai" },
+  { value: "Revisi", label: "Revisi" },
+  { value: "Belum Dinilai", label: "Belum Dinilai" },
+];
+
 const SubmissionItem = ({ submission, onGradeSubmit }) => {
-  const [nilai, setNilai] = useState(submission.nilai || "");
+  const [status, setStatus] = useState(submission.status || "Belum Dinilai");
   const [feedback, setFeedback] = useState(submission.feedback || "");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [editMode, setEditMode] = useState(
+    submission.status === "Belum Dinilai"
+  );
 
   const handleDownloadSubmission = async (filePath) => {
     const supabase = await createSupabaseBrowserClient();
     const { data, error } = await supabase.storage
       .from("lms-file")
-      .createSignedUrl(filePath, 60 * 60);
+      .createSignedUrl(filePath, 60 * 60, { download: true });
     if (error || !data?.signedUrl) {
-      alert("Gagal membuat signed URL untuk file.");
+      Swal.fire({
+        icon: "error",
+        title: "Gagal mengunduh file",
+        text: "Gagal membuat signed URL untuk file.",
+      });
       return;
     }
     window.open(data.signedUrl, "_blank");
@@ -27,19 +40,26 @@ const SubmissionItem = ({ submission, onGradeSubmit }) => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      await onGradeSubmit(submission.submission_id, nilai, feedback);
-      alert("Penilaian berhasil disimpan!");
+      await onGradeSubmit(submission.submission_id, status, feedback);
+      await Swal.fire({
+        icon: "success",
+        title: "Status penilaian berhasil disimpan!",
+        showConfirmButton: false,
+        timer: 1500,
+      });
     } catch (error) {
-      alert(`Gagal menyimpan penilaian: ${error.message}`);
+      Swal.fire({
+        icon: "error",
+        title: "Gagal menyimpan status penilaian",
+        text: error.message,
+      });
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const sudahDinilai =
-    submission.nilai !== null &&
-    submission.feedback !== null &&
-    submission.nilai !== "";
+    submission.status && submission.status !== "Belum Dinilai";
 
   return (
     <div className="submission-item p-5 border rounded-lg bg-slate-50">
@@ -54,9 +74,45 @@ const SubmissionItem = ({ submission, onGradeSubmit }) => {
           </p>
         </div>
         <div className="flex items-center gap-4">
-          {sudahDinilai && (
+          {submission.status === "Selesai" && (
             <span className="graded-badge px-2 py-1 text-xs font-semibold leading-tight text-green-700 bg-green-100 rounded-full flex items-center gap-1">
-              <FiCheckCircle className="inline-block" /> Sudah Dinilai
+              <FiCheckCircle className="inline-block" /> Selesai
+            </span>
+          )}
+          {submission.status === "Revisi" && (
+            <span className="graded-badge px-2 py-1 text-xs font-semibold leading-tight text-yellow-800 bg-yellow-100 rounded-full flex items-center gap-1">
+              <svg
+                className="inline-block w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>{" "}
+              Revisi
+            </span>
+          )}
+          {submission.status === "Belum Dinilai" && (
+            <span className="graded-badge px-2 py-1 text-xs font-semibold leading-tight text-gray-700 bg-gray-100 rounded-full flex items-center gap-1">
+              <svg
+                className="inline-block w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>{" "}
+              Belum Dinilai
             </span>
           )}
           <button
@@ -74,18 +130,22 @@ const SubmissionItem = ({ submission, onGradeSubmit }) => {
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Nilai
+              Status Penilaian
             </label>
-            <input
-              type="number"
-              name="nilai"
+            <select
+              name="status"
               className="w-full max-w-xs px-3 py-2 border border-gray-300 rounded-lg disabled:bg-gray-200 disabled:cursor-not-allowed"
-              placeholder="0-100"
-              value={nilai}
-              onChange={(e) => setNilai(e.target.value)}
-              disabled={sudahDinilai}
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              disabled={!editMode && sudahDinilai}
               required
-            />
+            >
+              {statusOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
           </div>
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1">
@@ -98,19 +158,40 @@ const SubmissionItem = ({ submission, onGradeSubmit }) => {
               placeholder="Tuliskan feedback untuk siswa..."
               value={feedback}
               onChange={(e) => setFeedback(e.target.value)}
-              disabled={sudahDinilai}
+              disabled={!editMode && sudahDinilai}
             ></textarea>
           </div>
         </div>
         <div className="flex justify-end mt-4 gap-2">
-          {/* <button type="button" className="delete-btn px-5 py-2 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600 hidden">Hapus</button> */}
-          {!sudahDinilai && (
+          {sudahDinilai && !editMode && (
+            <button
+              type="button"
+              className="px-5 py-2 bg-yellow-500 text-white rounded-lg font-semibold hover:bg-yellow-600"
+              onClick={() => setEditMode(true)}
+            >
+              Edit Penilaian
+            </button>
+          )}
+          {(editMode || !sudahDinilai) && (
             <button
               type="submit"
               className="submit-btn px-5 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700"
               disabled={isSubmitting}
             >
               {isSubmitting ? "Menyimpan..." : "Simpan Penilaian"}
+            </button>
+          )}
+          {editMode && sudahDinilai && (
+            <button
+              type="button"
+              className="px-5 py-2 bg-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-400"
+              onClick={() => {
+                setStatus(submission.status || "Belum Dinilai");
+                setFeedback(submission.feedback || "");
+                setEditMode(false);
+              }}
+            >
+              Batal
             </button>
           )}
         </div>
@@ -188,11 +269,11 @@ export default function GradingPage() {
     fetchSubmissions();
   }, [fetchSubmissions]);
 
-  const handleGradeSubmit = async (submissionId, nilai, feedback) => {
+  const handleGradeSubmit = async (submissionId, status, feedback) => {
     const response = await fetch(`/api/submissions/${submissionId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nilai, feedback }),
+      body: JSON.stringify({ status, feedback }),
     });
     if (!response.ok) {
       const errorData = await response.json();
@@ -221,12 +302,6 @@ export default function GradingPage() {
         <h2 className="text-4xl font-extrabold text-gray-800 tracking-tight">
           Penilaian Tugas
         </h2>
-        <p className="text-gray-500 mt-2 max-w-2xl">
-          Tinjau dan berikan nilai untuk tugas
-          <span className="font-semibold"> "{dummyAssignment.judul}" </span>
-          dari kursus
-          <span className="font-semibold"> "{dummyAssignment.course}"</span>.
-        </p>
       </div>
 
       <div className="bg-white p-6 rounded-xl shadow-lg">

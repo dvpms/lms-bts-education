@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 // Komponen Utama Halaman
 export default function MyCoursesPage() {
@@ -36,27 +37,36 @@ export default function MyCoursesPage() {
     router.push(`/dashboard/siswa/courses/${courseId}`);
   };
 
-  if (loading) return <div>Memuat daftar kursus Anda...</div>;
+  if (loading) return <div className="p-8">Memuat daftar kursus Anda...</div>;
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-6">Kursus Saya</h1>
+    <div className="flex-1 overflow-y-auto p-8">
+      <div className="mb-8">
+        <h2 className="text-4xl font-extrabold text-gray-800 tracking-tight">
+          Kursus Saya
+        </h2>
+        <p className="text-gray-500 mt-1">
+          Berikut adalah semua kursus di mana Anda terdaftar.
+        </p>
+      </div>
 
       {enrollments.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {enrollments.map((enrollment) => (
-            <div
+            <Link
               key={enrollment.enrollment_id}
-              onClick={() => handleCourseClick(enrollment.courses.course_id)}
-              className="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer"
+              href={"/dashboard/siswa/courses/" + enrollment.courses.course_id}
+              className="group block bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl hover:-translate-y-2 transition-all duration-300"
             >
-              <h2 className="text-xl font-semibold mb-2 text-gray-800">
-                {enrollment.courses.nama_course}
-              </h2>
-              <p className="text-gray-600 text-sm">
-                {enrollment.courses.deskripsi}
-              </p>
-            </div>
+              <div className="p-6">
+                <h3 className="text-lg font-bold text-gray-900 group-hover:text-green-600 transition-colors">
+                  {enrollment.courses.nama_course}
+                </h3>
+                <p className="text-sm text-gray-500 mt-2">
+                  {enrollment.courses.deskripsi}
+                </p>
+              </div>
+            </Link>
           ))}
         </div>
       ) : (

@@ -15,7 +15,9 @@ export default function AssignmentSubmissionsPage() {
       // Ambil data submissions beserta relasi user dan assignment
       const { data, error } = await supabase
         .from("submissions")
-        .select(`submission_id, id_assignment, id_siswa, file_path, submitted_at, nilai, feedback, users(nama_lengkap), assignments(judul_tugas)`);
+        .select(
+          `submission_id, id_assignment, id_siswa, file_path, submitted_at, nilai, feedback, users(nama_lengkap), assignments(judul_tugas)`
+        );
       setSubmissions(data || []);
       setLoading(false);
     };
@@ -26,7 +28,9 @@ export default function AssignmentSubmissionsPage() {
     let cleanPath = filePath;
     if (filePath.startsWith("/")) cleanPath = filePath.slice(1);
     const supabase = await createSupabaseBrowserClient();
-    const { data, error } = await supabase.storage.from("lms-file").createSignedUrl(cleanPath, 60 * 60);
+    const { data, error } = await supabase.storage
+      .from("lms-file")
+      .createSignedUrl(cleanPath, 60 * 60, { download: true });
     if (error || !data?.signedUrl) {
       alert("Gagal membuat signed URL untuk file.");
       return;
@@ -63,14 +67,21 @@ export default function AssignmentSubmissionsPage() {
             <tbody>
               {submissions.length > 0 ? (
                 submissions.map((s) => {
-                  const sudahDinilai = s.nilai !== null && s.feedback !== null && s.nilai !== "";
+                  const sudahDinilai =
+                    s.nilai !== null && s.feedback !== null && s.nilai !== "";
                   return (
                     <tr key={s.submission_id} className="border-t">
-                      <td className="p-2">{s.users?.nama_lengkap || s.id_siswa}</td>
-                      <td className="p-2">{s.assignments?.judul_tugas || s.id_assignment}</td>
-                      <td className="p-2">{new Date(s.submitted_at).toLocaleString()}</td>
-                      <td className="p-2">{s.nilai ?? '-'}</td>
-                      <td className="p-2">{s.feedback ?? '-'}</td>
+                      <td className="p-2">
+                        {s.users?.nama_lengkap || s.id_siswa}
+                      </td>
+                      <td className="p-2">
+                        {s.assignments?.judul_tugas || s.id_assignment}
+                      </td>
+                      <td className="p-2">
+                        {new Date(s.submitted_at).toLocaleString()}
+                      </td>
+                      <td className="p-2">{s.nilai ?? "-"}</td>
+                      <td className="p-2">{s.feedback ?? "-"}</td>
                       <td className="p-2 font-semibold">
                         {sudahDinilai ? (
                           <span className="text-green-600">Sudah dinilai</span>
@@ -85,7 +96,9 @@ export default function AssignmentSubmissionsPage() {
                         >
                           Download
                         </button>
-                        <Link href={`/dashboard/pengajar/assignments/${s.id_assignment}`}>
+                        <Link
+                          href={`/dashboard/pengajar/assignments/${s.id_assignment}`}
+                        >
                           <button className="bg-blue-500 text-white px-3 py-1 rounded-md text-sm hover:bg-blue-600">
                             Nilai
                           </button>

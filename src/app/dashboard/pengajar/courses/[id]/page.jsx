@@ -166,7 +166,7 @@ export default function CourseDetailPage() {
             try {
               const { data, error } = await supabase.storage
                 .from("lms-file")
-                .createSignedUrl(m.file_path, 60 * 60);
+                .createSignedUrl(m.file_path, 60 * 60, { download: true });
               if (data?.signedUrl) {
                 newUrls[m.material_id] = data.signedUrl;
               }
@@ -199,7 +199,7 @@ export default function CourseDetailPage() {
             try {
               const { data, error } = await supabase.storage
                 .from("lms-file")
-                .createSignedUrl(a.file_path, 60 * 60);
+                .createSignedUrl(a.file_path, 60 * 60, { download: true });
               if (data?.signedUrl) {
                 newUrls[a.assignment_id] = data.signedUrl;
               }

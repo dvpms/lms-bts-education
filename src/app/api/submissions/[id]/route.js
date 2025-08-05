@@ -25,28 +25,28 @@ export async function PUT(request, { params }) {
       return NextResponse.json({ message: "Akses ditolak" }, { status: 403 });
     }
 
-    // 2. Mengambil data nilai dan feedback dari body permintaan
-    const { nilai, feedback } = await request.json();
+        // 2. Mengambil data status dan feedback dari body permintaan
+        const { status, feedback } = await request.json();
 
-    if (nilai === undefined || feedback === undefined) {
-      return NextResponse.json(
-        { message: "Nilai dan feedback wajib diisi" },
-        { status: 400 }
-      );
-    }
+        if (!status || feedback === undefined) {
+            return NextResponse.json(
+                { message: "Status dan feedback wajib diisi" },
+                { status: 400 }
+            );
+        }
 
-    // 3. Memperbarui data di tabel 'submissions'
-    const { data, error } = await supabase
-      .from("submissions")
-      .update({ nilai, feedback })
-      .eq("submission_id", submissionId)
-      .select()
-      .single();
+        // 3. Update submission
+        const { data, error } = await supabase
+            .from("submissions")
+            .update({ status, feedback })
+            .eq("submission_id", submissionId)
+            .select()
+            .single();
 
     if (error) throw error;
 
     // 4. Mengembalikan respons berhasil
-    return NextResponse.json({ message: "Penilaian berhasil disimpan", data });
+        return NextResponse.json({ message: "Status penilaian berhasil disimpan", data });
   } catch (error) {
     return NextResponse.json(
       { message: "Error updating submission", error: error.message },

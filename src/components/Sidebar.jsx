@@ -12,6 +12,7 @@ import {
   UserPlus,
 } from "phosphor-react";
 
+
 // Daftar menu sidebar untuk pengajar
 const teacherNavLinks = [
   {
@@ -36,13 +37,32 @@ const teacherNavLinks = [
   },
 ];
 
+// Daftar menu sidebar untuk siswa
+const studentNavLinks = [
+  {
+    name: "Dashboard",
+    href: "/dashboard",
+    icon: <Layout weight="fill" size={22} />,
+  },
+  {
+    name: "Kursus Saya",
+    href: "/dashboard/siswa/my-courses",
+    icon: <Books weight="fill" size={22} />,
+  },
+  {
+    name: "Nilai & Progres",
+    href: "/dashboard/siswa/progress",
+    icon: <ChartBar weight="fill" size={22} />,
+  },
+];
+
 export default function Sidebar({
   userRole = "pengajar",
   userName = "Budi Pengajar",
   avatarUrl = "https://placehold.co/100x100/4A5568/FFFFFF?text=BP",
 }) {
   const pathname = usePathname();
-  const navLinks = teacherNavLinks;
+  const navLinks = userRole === "siswa" ? studentNavLinks : teacherNavLinks;
 
   return (
     <aside className="w-64 bg-gradient-to-b from-green-600 to-green-800 text-white flex-shrink-0 flex flex-col h-screen">
